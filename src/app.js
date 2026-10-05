@@ -1,26 +1,38 @@
 const express = require("express");
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 app.use(express.json());
+const port = process.env.PORT || 3000;
 
+<<<<<<< HEAD
+app.use(express.json());
+
+=======
+>>>>>>> origin/main
 const tasks = [
   { id: 1, title: "Configurer le projet", completed: true },
   { id: 2, title: "Ajouter l'API des tâches", completed: false },
   { id: 3, title: "Écrire les tests", completed: false }
 ];
 
+<<<<<<< HEAD
 let nextTaskId = 4;
 
 function calculateTotal(items) {
  return items.reduce((total, item) => total + item.price * item.quantity, 0);
+=======
+function calculateTotal(items) {
+  // INTENTIONAL DEFECT: students must diagnose this using the tests.
+  return items.reduce((total, item) => total + item.price * item.quantity, 0);
+>>>>>>> origin/main
 }
 
 app.get("/tasks", (_req, res) => {
   res.json(tasks);
 });
 
+<<<<<<< HEAD
 app.post("/tasks", (req, res) => {
   const { title } = req.body;
 
@@ -37,6 +49,23 @@ app.post("/tasks", (req, res) => {
   tasks.push(newTask);
 
   res.status(201).json(newTask);
+=======
+// Issue #3 — Complete a task
+app.patch("/tasks/:id", (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const task = tasks.find((t) => t.id === id);
+
+  if (!task) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  if (!req.body || typeof req.body.completed !== "boolean") {
+    return res.status(400).json({ error: "Invalid or missing \"completed\" field" });
+  }
+
+  task.completed = req.body.completed;
+  return res.status(200).json(task);
+>>>>>>> origin/main
 });
 
 app.get("/", (_req, res) => {
