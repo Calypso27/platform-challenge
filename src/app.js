@@ -3,10 +3,41 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(express.json());
+
+const tasks = [
+  { id: 1, title: "Configurer le projet", completed: true },
+  { id: 2, title: "Ajouter l'API des tâches", completed: false },
+  { id: 3, title: "Écrire les tests", completed: false }
+];
+
+let nextTaskId = 4;
+
 function calculateTotal(items) {
-  // INTENTIONAL DEFECT: students must diagnose this using the tests.
-  return items.reduce((total, item) => total + item.price + item.quantity, 0);
+ return items.reduce((total, item) => total + item.price * item.quantity, 0);
 }
+
+app.get("/tasks", (_req, res) => {
+  res.json(tasks);
+});
+
+app.post("/tasks", (req, res) => {
+  const { title } = req.body;
+
+  if (!title || typeof title !== "string" || title.trim() === "") {
+    return res.status(400).json({ error: "Le titre est obligatoire" });
+  }
+
+  const newTask = {
+    id: nextTaskId++,
+    title: title.trim(),
+    completed: false
+  };
+
+  tasks.push(newTask);
+
+  res.status(201).json(newTask);
+});
 
 app.get("/", (_req, res) => {
   res.json({
