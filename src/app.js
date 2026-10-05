@@ -23,14 +23,14 @@ app.get("/tasks", (_req, res) => {
 // Issue #3 — Complete a task
 app.patch("/tasks/:id", (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const task = tasks.find(t => t.id === id);
+  const task = tasks.find((t) => t.id === id);
 
   if (!task) {
     return res.status(404).json({ error: "Task not found" });
   }
 
   if (!req.body || typeof req.body.completed !== "boolean") {
-    return res.status(400).json({ error: 'Invalid or missing "completed" field' });
+    return res.status(400).json({ error: "Invalid or missing \"completed\" field" });
   }
 
   task.completed = req.body.completed;
