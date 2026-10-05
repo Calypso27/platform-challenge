@@ -2,7 +2,7 @@
 * @aldi-octet @mahutonbks @pupuceee @calypso27
 
 # Node.js application and tests
-/src/ @aldi-octet
+/src/ @aldi-octet @pupuceee
 /test/ @mahutonbks
 package.json @pupuceee
 package-lock.json @calypso27
