@@ -18,6 +18,27 @@ app.get("/tasks", (_req, res) => {
   res.json(tasks);
 });
 
+// Issue #3 — Complete a task
+app.patch('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const task = tasks.find(t => t.id === id);
+
+  // Vérification de l'existence de la tâche (404)
+  if (!task) {
+    return res.status(404).json({ error: 'Task not found' });
+  }
+
+  // Validation de l'entrée (400)
+  const { completed } = req.body;
+  if (typeof completed !== 'boolean') {
+    return res.status(400).json({ error: 'Field "completed" must be a boolean' });
+  }
+
+  // Mise à jour de la tâche (200)
+  task.completed = completed;
+  return res.status(200).json(task);
+});
+
 app.get("/", (_req, res) => {
   res.json({
     service: "devops-platform-challenge",

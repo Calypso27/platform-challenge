@@ -46,3 +46,33 @@ test("returns the list of tasks", async () => {
     server.close();
   }
 });
+
+describe('PATCH /tasks/:id', () => {
+  test('devrait marquer une tâche existante comme terminée (HTTP 200)', async () => {
+    const res = await request(app)
+      .patch('/tasks/1')
+      .send({ completed: true });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('id', 1);
+    expect(res.body.completed).toBe(true);
+  });
+
+  test('devrait renvoyer 404 si la tâche n\'existe pas', async () => {
+    const res = await request(app)
+      .patch('/tasks/9999')
+      .send({ completed: true });
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  test('devrait renvoyer 400 si la valeur de completed est invalide', async () => {
+    const res = await request(app)
+      .patch('/tasks/1')
+      .send({ completed: "not-a-boolean" });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty('error');
+  });
+});
