@@ -1,4 +1,5 @@
 const test = require("node:test");
+const { describe } = require("node:test");
 const assert = require("node:assert/strict");
 const { app, calculateTotal } = require("../src/app");
 
@@ -47,32 +48,65 @@ test("returns the list of tasks", async () => {
   }
 });
 
-describe('PATCH /tasks/:id', () => {
-  test('devrait marquer une tâche existante comme terminée (HTTP 200)', async () => {
-    const res = await request(app)
-      .patch('/tasks/1')
-      .send({ completed: true });
+describe("PATCH /tasks/:id", () => {
+  test("devrait marquer une tâche existante comme terminée (HTTP 200)", async () => {
+    const server = app.listen(0);
+    const baseUrl = `http://localhost:${server.address().port}`;
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('id', 1);
-    expect(res.body.completed).toBe(true);
+    try {
+      const response = await fetch(`${baseUrl}/tasks/1`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: true })
+      });
+
+      assert.equal(response.status, 200);
+
+      const task = await response.json();
+      assert.equal(task.id, 1);
+      assert.equal(task.completed, true);
+    } finally {
+      server.close();
+    }
   });
 
-  test('devrait renvoyer 404 si la tâche n\'existe pas', async () => {
-    const res = await request(app)
-      .patch('/tasks/9999')
-      .send({ completed: true });
+  test("devrait renvoyer 404 si la tâche n'existe pas", async () => {
+    const server = app.listen(0);
+    const baseUrl = `http://localhost:${server.address().port}`;
 
-    expect(res.statusCode).toBe(404);
-    expect(res.body).toHaveProperty('error');
+    try {
+      const response = await fetch(`${baseUrl}/tasks/9999`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: true })
+      });
+
+      assert.equal(response.status, 404);
+
+      const body = await response.json();
+      assert.ok("error" in body);
+    } finally {
+      server.close();
+    }
   });
 
-  test('devrait renvoyer 400 si la valeur de completed est invalide', async () => {
-    const res = await request(app)
-      .patch('/tasks/1')
-      .send({ completed: "not-a-boolean" });
+  test("devrait renvoyer 400 si la valeur de completed est invalide", async () => {
+    const server = app.listen(0);
+    const baseUrl = `http://localhost:${server.address().port}`;
 
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('error');
+    try {
+      const response = await fetch(`${baseUrl}/tasks/1`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: "not-a-boolean" })
+      });
+
+      assert.equal(response.status, 400);
+
+      const body = await response.json();
+      assert.ok("error" in body);
+    } finally {
+      server.close();
+    }
   });
 });
