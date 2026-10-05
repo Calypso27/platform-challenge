@@ -1,6 +1,8 @@
 const express = require("express");
 
 const app = express();
+
+app.use(express.json());
 const port = process.env.PORT || 3000;
 
 const tasks = [
@@ -19,23 +21,19 @@ app.get("/tasks", (_req, res) => {
 });
 
 // Issue #3 — Complete a task
-app.patch('/tasks/:id', (req, res) => {
+app.patch("/tasks/:id", (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const task = tasks.find(t => t.id === id);
+  const task = tasks.find((t) => t.id === id);
 
-  // Vérification de l'existence de la tâche (404)
   if (!task) {
-    return res.status(404).json({ error: 'Task not found' });
+    return res.status(404).json({ error: "Task not found" });
   }
 
-  // Validation de l'entrée (400)
-  const { completed } = req.body;
-  if (typeof completed !== 'boolean') {
-    return res.status(400).json({ error: 'Field "completed" must be a boolean' });
+  if (!req.body || typeof req.body.completed !== "boolean") {
+    return res.status(400).json({ error: "Invalid or missing \"completed\" field" });
   }
 
-  // Mise à jour de la tâche (200)
-  task.completed = completed;
+  task.completed = req.body.completed;
   return res.status(200).json(task);
 });
 

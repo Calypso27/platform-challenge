@@ -47,32 +47,62 @@ test("returns the list of tasks", async () => {
   }
 });
 
-describe('PATCH /tasks/:id', () => {
-  test('devrait marquer une tâche existante comme terminée (HTTP 200)', async () => {
-    const res = await request(app)
-      .patch('/tasks/1')
-      .send({ completed: true });
+// --- Issue #3: Complete a task (PATCH /tasks/:id) ---
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('id', 1);
-    expect(res.body.completed).toBe(true);
-  });
+test("PATCH /tasks/:id updates completed status for existing task", async () => {
+  const server = app.listen(0);
 
-  test('devrait renvoyer 404 si la tâche n\'existe pas', async () => {
-    const res = await request(app)
-      .patch('/tasks/9999')
-      .send({ completed: true });
+  try {
+    const response = await fetch(`http://localhost:${server.address().port}/tasks/1`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: true })
+    });
 
-    expect(res.statusCode).toBe(404);
-    expect(res.body).toHaveProperty('error');
-  });
+    assert.equal(response.status, 200);
 
-  test('devrait renvoyer 400 si la valeur de completed est invalide', async () => {
-    const res = await request(app)
-      .patch('/tasks/1')
-      .send({ completed: "not-a-boolean" });
+    const task = await response.json();
+    assert.equal(task.id, 1);
+    assert.equal(task.completed, true);
+  } finally {
+    server.close();
+  }
+});
 
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty('error');
-  });
+test("PATCH /tasks/:id returns 404 for unknown task", async () => {
+  const server = app.listen(0);
+
+  try {
+    const response = await fetch(`http://localhost:${server.address().port}/tasks/9999`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: true })
+    });
+
+    assert.equal(response.status, 404);
+
+    const body = await response.json();
+    assert.ok("error" in body);
+  } finally {
+    server.close();
+  }
+});
+
+test("PATCH /tasks/:id returns 400 for invalid input", async () => {
+  const server = app.listen(0);
+
+  try {
+    const response = await fetch(`http://localhost:${server.address().port}/tasks/1`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: "not-a-boolean" })
+    });
+
+    assert.equal(response.status, 400);
+
+    const body = await response.json();
+    assert.ok("error" in body);
+  } finally {
+    server.close();
+  }
 });
